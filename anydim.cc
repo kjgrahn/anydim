@@ -1,4 +1,4 @@
-/* $Id: anydim.cc,v 1.4 2010-12-19 21:02:15 grahn Exp $
+/* $Id: anydim.cc,v 1.5 2010-12-19 22:12:24 grahn Exp $
  *
  * Copyright (c) 2010 Jörgen Grahn
  * All rights reserved.
@@ -114,26 +114,55 @@ namespace {
 	}
     }
 
-    void jpegdim(std::ostream& os,
-		 const char* const file)
+    void jpegdim(std::istream& is,
+		 unsigned& width,
+		 unsigned& height)
     {
-	std::ifstream is(file);
 	Marker marker(eat16(is));
 	while(!marker.end()) {
 	    if(!marker.valid()) {
-		os << "...." << '\n';
 		marker = seek(is);
 	    }
 	    else {
-		os << marker << '\n';
-		if(marker.variable()) {
-		    os << "::::" << '\n';
+		if(marker==Marker::SOF0) {
+		    unsigned n = eat16(is);
+		    ignore(is, 1);
+		    height = eat16(is);
+		    width = eat16(is);
+		    return;
+		    ignore(is, n-2-1-4);
+		}
+		else if(marker.variable()) {
 		    unsigned n = eat16(is);
 		    ignore(is, n-2);
 		}
 		marker = Marker(eat16(is));
 	    }
 	}
+    }
+
+    bool jpegdim(std::ostream& os,
+		 const char* const file,
+		 bool emit_filename)
+    {
+	if(emit_filename) {
+	    os << file << ' ';
+	}
+
+	std::ifstream is(file);
+	unsigned width = 0;
+	unsigned height = 0;
+
+	try {
+	    jpegdim(is, width, height);
+	    os << width << ' ' << height;
+	}
+	catch(const char*) {
+	}
+	os << '\n';
+
+	is.close();
+	return true;
     }
 }
 
@@ -175,9 +204,13 @@ int main(int argc, char ** argv)
 	}
     }
 
+    int rc = 0;
+
     for(int i=optind; i<argc; i++) {
-	jpegdim(std::cout, argv[i]);
+	if(!jpegdim(std::cout, argv[i], (argc-optind) > 1)) {
+	    rc = 1;
+	}
     }
 
-    return 0;
+    return rc;
 }

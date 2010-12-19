@@ -1,0 +1,46 @@
+.\" $Id: anydim.1,v 1.1 2010-12-19 22:12:24 grahn Exp $
+.\" $Name:  $
+.
+.
+.ss 12 0
+.de BP
+.IP \\fB\\$*
+..
+.
+.
+.TH anydim 1 "DEC 2010" "Anydim" "User Manuals"
+.
+.SH "NAME"
+anydim \- print width and height of images
+.
+.SH "SYNOPSIS"
+.B anydim
+.I file
+\&...
+.br
+.B anydim
+.B --version
+.br
+.B anydim
+.B --help
+.
+.SH "DESCRIPTION"
+.B anydim
+simply prints the width and height of the image files given
+as command-line arguments.
+.
+.SH "OPTIONS"
+None.
+.
+.SH "BUGS"
+Only
+.B JPEG
+images are supported so far.
+.
+.SH "AUTHOR"
+J\(:orgen Grahn
+.IR \[fo]grahn+src@snipabacken.se\[fc] .
+Licensed under the GNU General Public License.
+.
+.SH "SEE ALSO"
+.BR jpeginfo (1).
