@@ -1,4 +1,4 @@
-/* $Id: anydim.cc,v 1.3 2010-12-19 20:48:10 grahn Exp $
+/* $Id: anydim.cc,v 1.4 2010-12-19 21:02:15 grahn Exp $
  *
  * Copyright (c) 2010 Jörgen Grahn
  * All rights reserved.
@@ -22,10 +22,39 @@ namespace {
     struct Marker {
 	explicit Marker(unsigned _n) : n(_n) {}
 	unsigned n;
+
+	bool operator== (const Marker& other) const {
+	    return n==other.n;
+	}
+
 	bool valid() const { return (n>>8)==0xff && n!=0xff00; }
-	bool end() const { return n==0xffd9; }
+	bool end() const { return *this==EOI; }
 	bool variable() const;
+
+	static const Marker SOI;
+	static const Marker SOF0;
+	static const Marker SOF2;
+	static const Marker DHT;
+	static const Marker DQT;
+	static const Marker DRI;
+	static const Marker SOS;
+	static const Marker APP0;
+	static const Marker APP1;
+	static const Marker COM;
+	static const Marker EOI;
     };
+
+    const Marker Marker::SOI (0xffd8);
+    const Marker Marker::SOF0(0xffc0);
+    const Marker Marker::SOF2(0xffc2);
+    const Marker Marker::DHT (0xffc4);
+    const Marker Marker::DQT (0xffdb);
+    const Marker Marker::DRI (0xffdd);
+    const Marker Marker::SOS (0xffda);
+    const Marker Marker::APP0(0xffe0);
+    const Marker Marker::APP1(0xffe1);
+    const Marker Marker::COM (0xfffe);
+    const Marker Marker::EOI (0xffd9);
 
     bool Marker::variable() const
     {
