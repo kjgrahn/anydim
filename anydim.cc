@@ -1,4 +1,4 @@
-/* $Id: anydim.cc,v 1.5 2010-12-19 22:12:24 grahn Exp $
+/* $Id: anydim.cc,v 1.6 2010-12-31 00:16:53 grahn Exp $
  *
  * Copyright (c) 2010 Jörgen Grahn
  * All rights reserved.
@@ -124,7 +124,8 @@ namespace {
 		marker = seek(is);
 	    }
 	    else {
-		if(marker==Marker::SOF0) {
+		if(marker==Marker::SOF0 ||
+		   marker==Marker::SOF2) {
 		    unsigned n = eat16(is);
 		    ignore(is, 1);
 		    height = eat16(is);
