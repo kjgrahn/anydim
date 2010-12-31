@@ -1,4 +1,4 @@
-/* $Id: anydim.cc,v 1.7 2010-12-31 08:51:35 grahn Exp $
+/* $Id: anydim.cc,v 1.8 2010-12-31 09:07:54 grahn Exp $
  *
  * Copyright (c) 2010 Jörgen Grahn
  * All rights reserved.
@@ -21,6 +21,35 @@ namespace {
 }
 
 namespace {
+
+    /* The JPEG standard is not available for free, so here's a short summary
+     * of the JIF format (including JFIF and whatever you call JIF+EXIF).
+     *
+     * A JIF file is a series of /segments/ introduced by /markers/.
+     *
+     * ff xx - marker for a fixed-size segment. All I've seen have xx in
+     *         the range d0--d9 and have a fixed size zero
+     *         (SOI, EOI and RSTn).
+     *
+     * ff xx - marker
+     * nn nn - 2 + octet length of segment data
+     * ...   - segment data
+     * ...   - entropy-encoded data, containing no ff octets
+     *         except followed by an 00 octet
+     *
+     * The file starts with a SOI followed by an APPn, and ends with
+     * EOI.  The width and height of the image is in a SOF0 or (for
+     * progressive JPEG) SOF2 segment, which both appear to be
+     *
+     * 1 octet  something
+     * 2 octets height
+     * 2 octets width
+     * ...
+     *
+     * Refs: <http://en.wikipedia.org/wiki/JPEG#Syntax_and_structure>
+     * and some googling.
+     */
+
     struct Marker {
 	explicit Marker(unsigned _n) : n(_n) {}
 	unsigned n;
