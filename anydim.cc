@@ -1,4 +1,4 @@
-/* $Id: anydim.cc,v 1.6 2010-12-31 00:16:53 grahn Exp $
+/* $Id: anydim.cc,v 1.7 2010-12-31 08:51:35 grahn Exp $
  *
  * Copyright (c) 2010 Jörgen Grahn
  * All rights reserved.
@@ -18,7 +18,9 @@ namespace {
     {
 	return "unpublished";
     }
+}
 
+namespace {
     struct Marker {
 	explicit Marker(unsigned _n) : n(_n) {}
 	unsigned n;
@@ -113,6 +115,19 @@ namespace {
 	    if(marker.valid()) return marker;
 	}
     }
+
+    class JpegDim {
+    public:
+	JpegDim();
+	void feed(const uint8_t *buf, size_t count);
+	void eof();
+
+	bool bad() const;
+	bool measured() const;
+
+    private:
+    };
+
 
     void jpegdim(std::istream& is,
 		 unsigned& width,
