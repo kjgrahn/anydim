@@ -1,4 +1,4 @@
-/* $Id: anydim.cc,v 1.12 2011-01-02 22:56:30 grahn Exp $
+/* $Id: anydim.cc,v 1.13 2011-01-02 23:11:25 grahn Exp $
  *
  * Copyright (c) 2010, 2011 Jörgen Grahn
  * All rights reserved.
@@ -73,7 +73,7 @@ namespace {
 	void eof();
 
 	bool bad() const { return state_==BAD; }
-	bool measured() const { return state_==GOOD; }
+	bool undecided() const { return state_==UNDECIDED; }
 
 	unsigned width;
 	unsigned height;
@@ -227,12 +227,12 @@ namespace {
 
 	JpegDim dim;
 	char buf[4096];
-	while(in) {
+	while(in && dim.undecided()) {
 	    in.read(buf, sizeof buf);
 	    const uint8_t* ubuf = reinterpret_cast<const uint8_t*>(buf);
 	    dim.feed(ubuf, ubuf + in.gcount());
 	}
-	dim.eof();
+	if(in) dim.eof();
 
 	if(in.bad()) {
 	    os << "ERROR: " << std::strerror(errno) << '\n';
