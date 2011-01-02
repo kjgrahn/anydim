@@ -1,4 +1,4 @@
-/* $Id: anydim.cc,v 1.9 2011-01-02 21:44:04 grahn Exp $
+/* $Id: anydim.cc,v 1.10 2011-01-02 21:52:17 grahn Exp $
  *
  * Copyright (c) 2010 Jörgen Grahn
  * All rights reserved.
@@ -22,6 +22,14 @@ namespace {
 }
 
 namespace {
+
+    static unsigned eat16(const uint8_t*& p)
+    {
+	unsigned n = *p++ << 8;
+	n <<= 8;
+	n |= *p++;
+	return n;
+    }
 
     /* The JPEG standard is not available for free, so here's a short summary
      * of the JIF format (including JFIF and whatever you call JIF+EXIF).
@@ -50,118 +58,21 @@ namespace {
      * Refs: <http://en.wikipedia.org/wiki/JPEG#Syntax_and_structure>
      * and some googling.
      */
-
-    struct Marker {
-	explicit Marker(unsigned _n) : n(_n) {}
-	unsigned n;
-
-	bool operator== (const Marker& other) const {
-	    return n==other.n;
-	}
-
-	bool valid() const { return (n>>8)==0xff && n!=0xff00; }
-	bool end() const { return *this==EOI; }
-	bool variable() const;
-
-	static const Marker SOI;
-	static const Marker SOF0;
-	static const Marker SOF2;
-	static const Marker DHT;
-	static const Marker DQT;
-	static const Marker DRI;
-	static const Marker SOS;
-	static const Marker APP0;
-	static const Marker APP1;
-	static const Marker COM;
-	static const Marker EOI;
-    };
-
-    const Marker Marker::SOI (0xffd8);
-    const Marker Marker::SOF0(0xffc0);
-    const Marker Marker::SOF2(0xffc2);
-    const Marker Marker::DHT (0xffc4);
-    const Marker Marker::DQT (0xffdb);
-    const Marker Marker::DRI (0xffdd);
-    const Marker Marker::SOS (0xffda);
-    const Marker Marker::APP0(0xffe0);
-    const Marker Marker::APP1(0xffe1);
-    const Marker Marker::COM (0xfffe);
-    const Marker Marker::EOI (0xffd9);
-
-    bool Marker::variable() const
-    {
-	switch(n) {
-	case 0xffd8:
-	case 0xffd0:
-	case 0xffd1:
-	case 0xffd2:
-	case 0xffd3:
-	case 0xffd4:
-	case 0xffd5:
-	case 0xffd6:
-	case 0xffd7:
-	    return false;
-	}
-	return true;
-    }
-
-    std::ostream& operator<< (std::ostream& os,
-			      const Marker& val)
-    {
-	char buf[5];
-	std::sprintf(buf, "%04x", val.n);
-	return os << buf;
-    }
-
-    unsigned eat8(std::istream& is)
-    {
-	int n = is.get();
-	if(n==-1) throw "eof";
-	return n;
-    }
-
-    unsigned eat16(std::istream& is)
-    {
-	int hi = is.get();
-	int lo = is.get();
-	if(lo==-1) throw "eof";
-	unsigned n = hi << 8;
-	n |= lo;
-	return n;
-    }
-
-    unsigned eat16(const uint8_t*& p)
-    {
-	unsigned n = *p++ << 8;
-	n <<= 8;
-	n |= *p++;
-	return n;
-    }
-
-    void ignore(std::istream& is, unsigned n)
-    {
-	is.ignore(n);
-	if(is.eof()) throw "eof";
-    }
-
-    Marker seek(std::istream& is)
-    {
-	while(1) {
-	    unsigned ch;
-	    while((ch = eat8(is)) != 0xff) {}
-	    Marker marker((ch<<8) | eat8(is));
-	    if(marker.valid()) return marker;
-	}
-    }
-
     class JpegDim {
     public:
-	JpegDim();
+	JpegDim()
+	    : state_(UNDECIDED),
+	      in_entropy_(false),
+	      seen_(0)
+	{}
+
+	const char* mime() const;
+
 	void feed(const uint8_t *a, const uint8_t *b);
 	void eof();
 
-	bool bad() const;
-	bool measured() const;
+	bool bad() const { return state_==BAD; }
+	bool measured() const { return state_==GOOD; }
 
 	unsigned width;
 	unsigned height;
@@ -192,12 +103,9 @@ namespace {
     };
 
 
-    JpegDim::JpegDim()
-	: state_(UNDECIDED),
-	  in_entropy_(false),
-	  seen_(0)
-    {}
-
+    /**
+     * Consume another chunk of data, [a, b).
+     */
     void JpegDim::feed(const uint8_t *a, const uint8_t *b)
     {
 	if(state_==BAD) return;
@@ -265,6 +173,12 @@ namespace {
 	if(a!=b) {
 	    mem_.insert(mem_.end(), a, b);
 	}
+    }
+
+
+    void JpegDim::eof()
+    {
+	if(state_==UNDECIDED) state_ = BAD;
     }
 
 
