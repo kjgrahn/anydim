@@ -1,4 +1,4 @@
-/* $Id: anydim.cc,v 1.13 2011-01-02 23:11:25 grahn Exp $
+/* $Id: anydim.cc,v 1.14 2011-01-02 23:13:19 grahn Exp $
  *
  * Copyright (c) 2010, 2011 Jörgen Grahn
  * All rights reserved.
@@ -273,8 +273,8 @@ int main(int argc, char ** argv)
 	    std::cout << usage << '\n';
 	    return 0;
 	case 'v':
-	    std::cout << "proffbib " << version() << '\n'
-		      << "Copyright (c) 2008--2009 Jörgen Grahn\n";
+	    std::cout << "anydim " << version() << '\n'
+		      << "Copyright (c) 2011 Jörgen Grahn\n";
 	    return 0;
 	    break;
 	case ':':
