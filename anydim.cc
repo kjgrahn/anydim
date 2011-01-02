@@ -1,4 +1,4 @@
-/* $Id: anydim.cc,v 1.11 2011-01-02 22:29:15 grahn Exp $
+/* $Id: anydim.cc,v 1.12 2011-01-02 22:56:30 grahn Exp $
  *
  * Copyright (c) 2010, 2011 Jörgen Grahn
  * All rights reserved.
@@ -28,7 +28,6 @@ namespace {
     static unsigned eat16(const uint8_t*& p)
     {
 	unsigned n = *p++ << 8;
-	n <<= 8;
 	n |= *p++;
 	return n;
     }
@@ -138,16 +137,20 @@ namespace {
 
 	    if(0xffd0 <= m && m <= 0xffd9) {
 		/* just a marker */
+		seen_ += 2;
 		continue;
 	    }
 
-	    /* marker, length, data */
+	    /* marker, length, data, [entropy] */
 	    if(b-a<2) {
 		a-=2;
 		break;
 	    }
 	    unsigned n = eat16(a);
-	    if(n<2) break;
+	    if(n<2) {
+		state_ = BAD;
+		break;
+	    }
 	    n-=2;
 	    if(b-a<n) {
 		a-=2+2;
@@ -169,6 +172,7 @@ namespace {
 		a += n;
 	    }
 
+	    seen_ += 2+2+n;
 	    eat_entropy(a, b);
 	}
 
