@@ -1,6 +1,6 @@
-/* $Id: anydim.cc,v 1.10 2011-01-02 21:52:17 grahn Exp $
+/* $Id: anydim.cc,v 1.11 2011-01-02 22:29:15 grahn Exp $
  *
- * Copyright (c) 2010 Jörgen Grahn
+ * Copyright (c) 2010, 2011 Jörgen Grahn
  * All rights reserved.
  *
  */
@@ -10,6 +10,8 @@
 #include <vector>
 
 #include <cstdlib>
+#include <cstring>
+#include <errno.h>
 #include <cassert>
 #include <getopt.h>
 
@@ -209,34 +211,6 @@ namespace {
     }
 
 
-    void jpegdim(std::istream& is,
-		 unsigned& width,
-		 unsigned& height)
-    {
-	Marker marker(eat16(is));
-	while(!marker.end()) {
-	    if(!marker.valid()) {
-		marker = seek(is);
-	    }
-	    else {
-		if(marker==Marker::SOF0 ||
-		   marker==Marker::SOF2) {
-		    unsigned n = eat16(is);
-		    ignore(is, 1);
-		    height = eat16(is);
-		    width = eat16(is);
-		    return;
-		    ignore(is, n-2-1-4);
-		}
-		else if(marker.variable()) {
-		    unsigned n = eat16(is);
-		    ignore(is, n-2);
-		}
-		marker = Marker(eat16(is));
-	    }
-	}
-    }
-
     bool jpegdim(std::ostream& os,
 		 const char* const file,
 		 bool emit_filename)
@@ -245,19 +219,28 @@ namespace {
 	    os << file << ' ';
 	}
 
-	std::ifstream is(file);
-	unsigned width = 0;
-	unsigned height = 0;
+	std::ifstream in(file);
 
-	try {
-	    jpegdim(is, width, height);
-	    os << width << ' ' << height;
+	JpegDim dim;
+	char buf[4096];
+	while(in) {
+	    in.read(buf, sizeof buf);
+	    const uint8_t* ubuf = reinterpret_cast<const uint8_t*>(buf);
+	    dim.feed(ubuf, ubuf + in.gcount());
 	}
-	catch(const char*) {
-	}
-	os << '\n';
+	dim.eof();
 
-	is.close();
+	if(in.bad()) {
+	    os << "ERROR: " << std::strerror(errno) << '\n';
+	    return false;
+	}
+
+	if(dim.bad()) {
+	    os << "ERROR: not a valid JPEG file\n";
+	    return false;
+	}
+
+	os << dim.width << ' ' << dim.height << '\n';
 	return true;
     }
 }
