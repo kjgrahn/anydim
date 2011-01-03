@@ -1,4 +1,4 @@
-/* $Id: anydim.cc,v 1.14 2011-01-02 23:13:19 grahn Exp $
+/* $Id: anydim.cc,v 1.15 2011-01-03 22:02:01 grahn Exp $
  *
  * Copyright (c) 2010, 2011 Jörgen Grahn
  * All rights reserved.
@@ -44,8 +44,9 @@ namespace {
      * ff xx - marker
      * nn nn - 2 + octet length of segment data
      * ...   - segment data
-     * ...   - entropy-encoded data, containing no ff octets
-     *         except followed by an 00 octet
+     *
+     * Either kind of segment may be followed by entropy-encoded data,
+     * containing no ff octets except followed by an 00 octet.
      *
      * The file starts with a SOI followed by an APPn, and ends with
      * EOI.  The width and height of the image is in a SOF0 or (for
@@ -126,6 +127,7 @@ namespace {
 
 	    if(b-a<2) break;
 	    const unsigned m = eat16(a);
+
 	    if(seen_==0 && m!=SOI) {
 		state_ = BAD;
 		break;
@@ -138,41 +140,42 @@ namespace {
 	    if(0xffd0 <= m && m <= 0xffd9) {
 		/* just a marker */
 		seen_ += 2;
-		continue;
 	    }
-
-	    /* marker, length, data, [entropy] */
-	    if(b-a<2) {
-		a-=2;
-		break;
-	    }
-	    unsigned n = eat16(a);
-	    if(n<2) {
-		state_ = BAD;
-		break;
-	    }
-	    n-=2;
-	    if(b-a<n) {
-		a-=2+2;
-		break;
-	    }
-
-	    if(m==SOF0 || m==SOF2) {
-		if(n<5) {
+	    else {
+		/* marker, length, data, [entropy] */
+		if(b-a<2) {
+		    a-=2;
+		    break;
+		}
+		unsigned n = eat16(a);
+		if(n<2) {
 		    state_ = BAD;
 		    break;
 		}
-		state_ = GOOD;
-		a++;
-		height = eat16(a);
-		width = eat16(a);
-		a += n<1+2+2;
-	    }
-	    else {
-		a += n;
+		n-=2;
+		if(b-a<n) {
+		    a-=2+2;
+		    break;
+		}
+
+		if(m==SOF0 || m==SOF2) {
+		    if(n<5) {
+			state_ = BAD;
+			break;
+		    }
+		    state_ = GOOD;
+		    a++;
+		    height = eat16(a);
+		    width = eat16(a);
+		    a += n<1+2+2;
+		}
+		else {
+		    a += n;
+		}
+
+		seen_ += 2+2+n;
 	    }
 
-	    seen_ += 2+2+n;
 	    eat_entropy(a, b);
 	}
 
