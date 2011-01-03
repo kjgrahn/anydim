@@ -1,4 +1,4 @@
-/* $Id: anydim.cc,v 1.16 2011-01-03 22:12:07 grahn Exp $
+/* $Id: anydim.cc,v 1.17 2011-01-03 22:15:46 grahn Exp $
  *
  * Copyright (c) 2010, 2011 Jörgen Grahn
  * All rights reserved.
@@ -152,12 +152,11 @@ namespace {
 		    a-=2;
 		    break;
 		}
-		unsigned n = eat16(a);
-		if(n<2) {
+		const int n = eat16(a) - 2;
+		if(n<0) {
 		    state_ = BAD;
 		    break;
 		}
-		n-=2;
 		if(b-a<n) {
 		    a-=2+2;
 		    break;
