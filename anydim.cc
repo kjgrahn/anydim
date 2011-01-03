@@ -1,4 +1,4 @@
-/* $Id: anydim.cc,v 1.15 2011-01-03 22:02:01 grahn Exp $
+/* $Id: anydim.cc,v 1.16 2011-01-03 22:12:07 grahn Exp $
  *
  * Copyright (c) 2010, 2011 Jörgen Grahn
  * All rights reserved.
@@ -57,8 +57,10 @@ namespace {
      * 2 octets width
      * ...
      *
-     * Refs: <http://en.wikipedia.org/wiki/JPEG#Syntax_and_structure>
-     * and some googling.
+     * The same goes for at least SOF1, SOF9 and SOF10.
+     *
+     * Refs: <http://en.wikipedia.org/wiki/JPEG#Syntax_and_structure>,
+     * and some googling, and the libjpeg sources.
      */
     class JpegDim {
     public:
@@ -85,7 +87,10 @@ namespace {
 	enum Marker {
 	    SOI  = 0xffd8,
 	    SOF0 = 0xffc0,
+	    SOF1 = 0xffc1,
 	    SOF2 = 0xffc2,
+	    SOF9 = 0xffc9,
+	    SOFa = 0xffca,
 	    DHT  = 0xffc4,
 	    DQT  = 0xffdb,
 	    DRI  = 0xffdd,
@@ -158,7 +163,11 @@ namespace {
 		    break;
 		}
 
-		if(m==SOF0 || m==SOF2) {
+		if(m==SOF0 ||
+		   m==SOF1 ||
+		   m==SOF2 ||
+		   m==SOF9 ||
+		   m==SOFa) {
 		    if(n<5) {
 			state_ = BAD;
 			break;
