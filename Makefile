@@ -1,8 +1,8 @@
-# $Id: Makefile,v 1.1 2010-12-19 20:46:42 grahn Exp $
+# $Id: Makefile,v 1.2 2011-01-03 22:17:02 grahn Exp $
 #
 # Makefile
 #
-# Copyright (c) 2010 Jörgen Grahn
+# Copyright (c) 2010, 2011 Jörgen Grahn
 # All rights reserved.
 
 SHELL=/bin/sh
@@ -25,7 +25,7 @@ checkv: tests
 	valgrind -q ./tests
 
 anydim: anydim.o
-	$(CXX) -o $@ anydim.o
+	$(CXX) $(CXXFLAGS) -o $@ anydim.o
 
 .PHONY: tags
 tags: TAGS
