@@ -1,4 +1,4 @@
-/* $Id: main.cc,v 1.1 2011-01-03 23:27:45 grahn Exp $
+/* $Id: main.cc,v 1.2 2011-01-03 23:44:21 grahn Exp $
  *
  * Copyright (c) 2011 Jörgen Grahn
  * All rights reserved.
@@ -11,6 +11,9 @@
 #include <cstring>
 #include <errno.h>
 #include <getopt.h>
+
+#include "anydim.h"
+
 
 namespace {
 
@@ -32,7 +35,7 @@ namespace {
 
 	std::ifstream in(file);
 
-	JpegDim dim;
+	anydim::JpegDim dim;
 	char buf[4096];
 	while(in && dim.undecided()) {
 	    in.read(buf, sizeof buf);

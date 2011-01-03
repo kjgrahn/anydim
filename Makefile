@@ -1,4 +1,4 @@
-# $Id: Makefile,v 1.3 2011-01-03 23:27:45 grahn Exp $
+# $Id: Makefile,v 1.4 2011-01-03 23:44:21 grahn Exp $
 #
 # Makefile
 #
@@ -48,3 +48,6 @@ love:
 	@echo "not war?"
 
 # DO NOT DELETE
+
+anydim.o: anydim.h
+main.o: anydim.h
