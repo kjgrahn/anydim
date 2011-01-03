@@ -1,4 +1,4 @@
-# $Id: Makefile,v 1.2 2011-01-03 22:17:02 grahn Exp $
+# $Id: Makefile,v 1.3 2011-01-03 23:27:45 grahn Exp $
 #
 # Makefile
 #
@@ -24,8 +24,11 @@ check: tests
 checkv: tests
 	valgrind -q ./tests
 
-anydim: anydim.o
-	$(CXX) $(CXXFLAGS) -o $@ anydim.o
+anydim: main.o libanydim.a
+	$(CXX) $(CXXFLAGS) -o $@ main.o -L. -lanydim
+
+libanydim.a: anydim.o
+	$(AR) -r $@ $^
 
 .PHONY: tags
 tags: TAGS
