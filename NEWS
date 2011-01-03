@@ -1,9 +1,18 @@
 _________________________________________
 
+anydim 0.2 (2010-01-03):
+
+- Bug fix: failed to discard entropy-encoded data after RSTn markers.
+  This caused failures for only a minority of all images, I suppose
+  because the end of such data rarely occurs within the first 4 KB.
+
+- Support the SOF1, SOF9 and SOF10 segments along with SOF0 and SOF2,
+  just like libjpeg does.
+
 anydim 0.1 (2010-01-03):
 
 - First, incomplete release.
 
 _________________________________________
-$Id: NEWS,v 1.1 2011-01-02 23:03:49 grahn Exp $
+$Id: NEWS,v 1.2 2011-01-03 22:26:17 grahn Exp $
 $Name:  $
