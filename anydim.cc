@@ -1,4 +1,4 @@
-/* $Id: anydim.cc,v 1.19 2011-01-03 23:44:21 grahn Exp $
+/* $Id: anydim.cc,v 1.20 2011-01-03 23:45:49 grahn Exp $
  *
  * Copyright (c) 2010, 2011 Jörgen Grahn
  * All rights reserved.
@@ -111,7 +111,9 @@ namespace anydim {
 
     void JpegDim::eof()
     {
-	if(state_==UNDECIDED) state_ = BAD;
+	if(state_==UNDECIDED || !mem_.empty()) {
+	    state_ = BAD;
+	}
     }
 
 
