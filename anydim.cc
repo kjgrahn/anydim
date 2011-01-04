@@ -1,4 +1,4 @@
-/* $Id: anydim.cc,v 1.22 2011-01-04 23:05:42 grahn Exp $
+/* $Id: anydim.cc,v 1.23 2011-01-04 23:14:18 grahn Exp $
  *
  * Copyright (c) 2010, 2011 Jörgen Grahn
  * All rights reserved.
@@ -190,7 +190,7 @@ namespace anydim {
 	    b = a + ws.size();
 	}
 
-	if(b-a < unsigned(sizeof pngintro + 4 + 4)) {
+	if(b-a < int(sizeof pngintro + 4 + 4)) {
 	    mem_.insert(mem_.end(), a, b);
 	    return;
 	}
