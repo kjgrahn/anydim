@@ -1,4 +1,4 @@
-/* $Id: anydim.cc,v 1.23 2011-01-04 23:14:18 grahn Exp $
+/* $Id: anydim.cc,v 1.24 2011-01-04 23:28:55 grahn Exp $
  *
  * Copyright (c) 2010, 2011 Jörgen Grahn
  * All rights reserved.
@@ -30,131 +30,132 @@ namespace {
 }
 
 
-namespace anydim {
+using anydim::JpegDim;
 
-    const char* JpegDim::mime() const
-    {
-	return "image/jpeg";
+const char* JpegDim::mime() const
+{
+    return "image/jpeg";
+}
+
+/**
+ * Consume another chunk of data, [a, b).
+ */
+void JpegDim::feed(const uint8_t *a, const uint8_t *b)
+{
+    if(state_==BAD) return;
+
+    std::vector<uint8_t> ws;
+
+    if(!mem_.empty()) {
+	std::swap(ws, mem_);
+	ws.insert(ws.end(), a, b);
+	a = &ws[0];
+	b = a + ws.size();
     }
 
-    /**
-     * Consume another chunk of data, [a, b).
-     */
-    void JpegDim::feed(const uint8_t *a, const uint8_t *b)
-    {
-	if(state_==BAD) return;
+    if(in_entropy_)	eat_entropy(a, b);
 
-	std::vector<uint8_t> ws;
+    while(!in_entropy_) {
 
-	if(!mem_.empty()) {
-	    std::swap(ws, mem_);
-	    ws.insert(ws.end(), a, b);
-	    a = &ws[0];
-	    b = a + ws.size();
+	if(b-a<2) break;
+	const unsigned m = eat16(a);
+
+	if(seen_==0 && m!=SOI) {
+	    state_ = BAD;
+	    break;
+	}
+	if(m>>8 != 0xff) {
+	    state_ = BAD;
+	    break;
 	}
 
-	if(in_entropy_)	eat_entropy(a, b);
-
-	while(!in_entropy_) {
-
-	    if(b-a<2) break;
-	    const unsigned m = eat16(a);
-
-	    if(seen_==0 && m!=SOI) {
+	if(0xffd0 <= m && m <= 0xffd9) {
+	    /* just a marker */
+	    seen_ += 2;
+	}
+	else {
+	    /* marker, length, data, [entropy] */
+	    if(b-a<2) {
+		a-=2;
+		break;
+	    }
+	    const int n = eat16(a) - 2;
+	    if(n<0) {
 		state_ = BAD;
 		break;
 	    }
-	    if(m>>8 != 0xff) {
-		state_ = BAD;
+	    if(b-a<n) {
+		a-=2+2;
 		break;
 	    }
 
-	    if(0xffd0 <= m && m <= 0xffd9) {
-		/* just a marker */
-		seen_ += 2;
-	    }
-	    else {
-		/* marker, length, data, [entropy] */
-		if(b-a<2) {
-		    a-=2;
-		    break;
-		}
-		const int n = eat16(a) - 2;
-		if(n<0) {
+	    if(m==SOF0 ||
+	       m==SOF1 ||
+	       m==SOF2 ||
+	       m==SOF9 ||
+	       m==SOFa) {
+		if(n<5) {
 		    state_ = BAD;
 		    break;
 		}
-		if(b-a<n) {
-		    a-=2+2;
-		    break;
-		}
-
-		if(m==SOF0 ||
-		   m==SOF1 ||
-		   m==SOF2 ||
-		   m==SOF9 ||
-		   m==SOFa) {
-		    if(n<5) {
-			state_ = BAD;
-			break;
-		    }
-		    state_ = GOOD;
-		    a++;
-		    height = eat16(a);
-		    width = eat16(a);
-		    a += n<1+2+2;
-		}
-		else {
-		    a += n;
-		}
-
-		seen_ += 2+2+n;
+		state_ = GOOD;
+		a++;
+		height = eat16(a);
+		width = eat16(a);
+		a += n<1+2+2;
+	    }
+	    else {
+		a += n;
 	    }
 
-	    eat_entropy(a, b);
+	    seen_ += 2+2+n;
 	}
 
-	if(a!=b) {
-	    mem_.insert(mem_.end(), a, b);
-	}
+	eat_entropy(a, b);
     }
 
-
-    void JpegDim::eof()
-    {
-	if(state_==UNDECIDED || !mem_.empty()) {
-	    state_ = BAD;
-	}
-    }
-
-
-    /**
-     * Consume entropy-encoded data from [a, b) until all is consumed
-     * or a segment is found. Sets 'in_entropy_' and updates 'a' and 'seen_'.
-     */
-    void JpegDim::eat_entropy(const uint8_t *&a, const uint8_t *b)
-    {
-	const uint8_t* const c = a;
-
-	in_entropy_ = true;
-	while(a!=b) {
-	    if(*a++==0xff) {
-		if(a==b) {
-		    a--;
-		    break;
-		}
-		else if(*a) {
-		    a--;
-		    in_entropy_ = false;
-		    break;
-		}
-	    }
-	}
-
-	seen_ += a-c;
+    if(a!=b) {
+	mem_.insert(mem_.end(), a, b);
     }
 }
 
+
+void JpegDim::eof()
+{
+    if(state_==UNDECIDED || !mem_.empty()) {
+	state_ = BAD;
+    }
+}
+
+
+/**
+ * Consume entropy-encoded data from [a, b) until all is consumed
+ * or a segment is found. Sets 'in_entropy_' and updates 'a' and 'seen_'.
+ */
+void JpegDim::eat_entropy(const uint8_t *&a, const uint8_t *b)
+{
+    const uint8_t* const c = a;
+
+    in_entropy_ = true;
+    while(a!=b) {
+	if(*a++==0xff) {
+	    if(a==b) {
+		a--;
+		break;
+	    }
+	    else if(*a) {
+		a--;
+		in_entropy_ = false;
+		break;
+	    }
+	}
+    }
+
+    seen_ += a-c;
+}
+
+
+using anydim::PngDim;
 
 namespace {
 
@@ -170,51 +171,47 @@ namespace {
 }
 
 
-namespace anydim {
+const char* PngDim::mime() const
+{
+    return "image/png";
+}
 
-    const char* PngDim::mime() const
-    {
-	return "image/png";
+void PngDim::feed(const uint8_t *a, const uint8_t *b)
+{
+    if(state_==BAD) return;
+
+    std::vector<uint8_t> ws;
+
+    if(!mem_.empty()) {
+	std::swap(ws, mem_);
+	ws.insert(ws.end(), a, b);
+	a = &ws[0];
+	b = a + ws.size();
     }
 
-    void PngDim::feed(const uint8_t *a, const uint8_t *b)
-    {
-	if(state_==BAD) return;
-
-	std::vector<uint8_t> ws;
-
-	if(!mem_.empty()) {
-	    std::swap(ws, mem_);
-	    ws.insert(ws.end(), a, b);
-	    a = &ws[0];
-	    b = a + ws.size();
-	}
-
-	if(b-a < int(sizeof pngintro + 4 + 4)) {
-	    mem_.insert(mem_.end(), a, b);
-	    return;
-	}
-
-	if(!std::equal(pngintro, pngintro + sizeof pngintro, a)) {
-	    state_ = BAD;
-	    return;
-	}
-
-	state_ = GOOD;
-	a += sizeof pngintro;
-	width = eat32(a);
-	height = eat32(a);
+    if(b-a < int(sizeof pngintro + 4 + 4)) {
+	mem_.insert(mem_.end(), a, b);
+	return;
     }
 
-    void PngDim::eof()
-    {
-	if(state_==UNDECIDED) state_ = BAD;
+    if(!std::equal(pngintro, pngintro + sizeof pngintro, a)) {
+	state_ = BAD;
+	return;
     }
+
+    state_ = GOOD;
+    a += sizeof pngintro;
+    width = eat32(a);
+    height = eat32(a);
+}
+
+void PngDim::eof()
+{
+    if(state_==UNDECIDED) state_ = BAD;
 }
 
 
 using anydim::AnyDim;
-
 
 AnyDim::AnyDim()
     : mime_("image")
