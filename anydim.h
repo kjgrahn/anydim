@@ -1,5 +1,5 @@
 /* -*- c++ -*-
- * $Id: anydim.h,v 1.4 2011-01-04 23:05:42 grahn Exp $
+ * $Id: anydim.h,v 1.5 2011-01-04 23:26:54 grahn Exp $
  *
  * Copyright (c) 2011 Jörgen Grahn
  * All rights reserved.
@@ -98,20 +98,13 @@ namespace anydim {
 	std::vector<uint8_t> mem_;
 
 	enum Marker {
-	    SOI  = 0xffd8,
-	    SOF0 = 0xffc0,
-	    SOF1 = 0xffc1,
-	    SOF2 = 0xffc2,
-	    SOF9 = 0xffc9,
-	    SOFa = 0xffca,
-	    DHT  = 0xffc4,
-	    DQT  = 0xffdb,
-	    DRI  = 0xffdd,
-	    SOS  = 0xffda,
-	    APP0 = 0xffe0,
-	    APP1 = 0xffe1,
-	    COM  = 0xfffe,
-	    EOI  = 0xffd9
+	    SOI  = 0xffd8,  DQT  = 0xffdb,
+	    SOF0 = 0xffc0,  DRI  = 0xffdd,
+	    SOF1 = 0xffc1,  SOS  = 0xffda,
+	    SOF2 = 0xffc2,  APP0 = 0xffe0,
+	    SOF9 = 0xffc9,  APP1 = 0xffe1,
+	    SOFa = 0xffca,  COM  = 0xfffe,
+	    DHT  = 0xffc4,  EOI  = 0xffd9
 	};
 
 	bool in_entropy_;
