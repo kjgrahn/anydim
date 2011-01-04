@@ -1,4 +1,4 @@
-/* $Id: main.cc,v 1.4 2011-01-04 23:05:42 grahn Exp $
+/* $Id: main.cc,v 1.5 2011-01-04 23:11:06 grahn Exp $
  *
  * Copyright (c) 2011 Jörgen Grahn
  * All rights reserved.
@@ -42,7 +42,7 @@ namespace {
 	    const uint8_t* ubuf = reinterpret_cast<const uint8_t*>(buf);
 	    dim.feed(ubuf, ubuf + in.gcount());
 	}
-	if(in) dim.eof();
+	if(!in) dim.eof();
 
 	if(in.bad()) {
 	    os << "ERROR: " << std::strerror(errno) << '\n';
