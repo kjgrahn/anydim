@@ -1,4 +1,4 @@
-/* $Id: main.cc,v 1.5 2011-01-04 23:11:06 grahn Exp $
+/* $Id: main.cc,v 1.6 2011-01-04 23:49:21 grahn Exp $
  *
  * Copyright (c) 2011 Jörgen Grahn
  * All rights reserved.
@@ -33,7 +33,9 @@ namespace {
 	    os << file << ' ';
 	}
 
-	std::ifstream in(file);
+	std::ifstream inf;
+	if(file) inf.open(file);
+	std::istream& in = file? inf: std::cin;
 
 	anydim::AnyDim dim;
 	char buf[4096];
@@ -103,6 +105,9 @@ int main(int argc, char ** argv)
 	if(!jpegdim(std::cout, argv[i], (argc-optind) > 1)) {
 	    rc = 1;
 	}
+    }
+    if(optind==argc) {
+	rc = jpegdim(std::cout, 0, false)? 0: 1;
     }
 
     return rc;
