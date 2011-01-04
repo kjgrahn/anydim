@@ -1,5 +1,5 @@
 /* -*- c++ -*-
- * $Id: anydim.h,v 1.3 2011-01-04 00:34:19 grahn Exp $
+ * $Id: anydim.h,v 1.4 2011-01-04 23:05:42 grahn Exp $
  *
  * Copyright (c) 2011 Jörgen Grahn
  * All rights reserved.
@@ -138,6 +138,30 @@ namespace anydim {
 
     private:
 	std::vector<uint8_t> mem_;
+    };
+
+
+    /**
+     * The actual 'any' dimension decoder -- decode using all available
+     * decoders in parallel until (presumably) zero or one turns
+     * !(undecided || bad).
+     *
+     */
+    class AnyDim : public Dim {
+    public:
+	AnyDim();
+	~AnyDim();
+
+	const char* mime() const;
+
+	void feed(const uint8_t *a, const uint8_t *b);
+	void eof();
+
+    private:
+	std::vector<Dim*> dims_;
+	const char* mime_;
+
+	void weed();
     };
 
 }

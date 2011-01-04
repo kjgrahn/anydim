@@ -1,4 +1,4 @@
-/* $Id: anydim.cc,v 1.21 2011-01-04 00:34:19 grahn Exp $
+/* $Id: anydim.cc,v 1.22 2011-01-04 23:05:42 grahn Exp $
  *
  * Copyright (c) 2010, 2011 Jörgen Grahn
  * All rights reserved.
@@ -209,5 +209,89 @@ namespace anydim {
     void PngDim::eof()
     {
 	if(state_==UNDECIDED) state_ = BAD;
+    }
+}
+
+
+using anydim::AnyDim;
+
+
+AnyDim::AnyDim()
+    : mime_("image")
+{
+    dims_.push_back(new JpegDim);
+    dims_.push_back(new PngDim);
+}
+
+
+namespace {
+
+    void del(anydim::Dim* d) { delete d; }
+
+    struct feed {
+	feed(const uint8_t *a, const uint8_t *b) : a(a), b(b) {}
+	void operator() (anydim::Dim* dim) const { dim->feed(a, b); }
+	const uint8_t* const a;
+	const uint8_t* const b;
+    };
+
+    void eof(anydim::Dim* d) { d->eof(); }
+}
+
+
+AnyDim::~AnyDim()
+{
+    std::for_each(dims_.begin(), dims_.end(), del);
+}
+
+
+const char* AnyDim::mime() const
+{
+    return mime_;
+}
+
+
+void AnyDim::feed(const uint8_t *a, const uint8_t *b)
+{
+    std::for_each(dims_.begin(), dims_.end(),
+		  ::feed(a, b));
+    weed();
+}
+
+void AnyDim::eof()
+{
+    std::for_each(dims_.begin(), dims_.end(),
+		  ::eof);
+    weed();
+    if(state_==UNDECIDED) state_ = BAD;
+}
+
+void AnyDim::weed()
+{
+    Dim* last_good = 0;
+    unsigned notbad = 0;
+    unsigned good = 0;
+    for(std::vector<Dim*>::iterator i = dims_.begin();
+	i!=dims_.end();
+	++i) {
+
+	Dim& dim = **i;
+	if(!dim.bad()) {
+	    ++notbad;
+	    if(!dim.undecided()) {
+		++good;
+		last_good = &dim;
+	    }
+	}
+    }
+
+    if(!notbad) {
+	state_ = BAD;
+    }
+    else if(good==1) {
+	state_ = GOOD;
+	width = last_good->width;
+	height = last_good->height;
+	mime_ = last_good->mime();
     }
 }

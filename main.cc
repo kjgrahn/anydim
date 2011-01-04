@@ -1,4 +1,4 @@
-/* $Id: main.cc,v 1.3 2011-01-04 00:34:19 grahn Exp $
+/* $Id: main.cc,v 1.4 2011-01-04 23:05:42 grahn Exp $
  *
  * Copyright (c) 2011 Jörgen Grahn
  * All rights reserved.
@@ -35,7 +35,7 @@ namespace {
 
 	std::ifstream in(file);
 
-	anydim::JpegDim dim;
+	anydim::AnyDim dim;
 	char buf[4096];
 	while(in && dim.undecided()) {
 	    in.read(buf, sizeof buf);
