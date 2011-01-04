@@ -1,4 +1,4 @@
-/* $Id: main.cc,v 1.2 2011-01-03 23:44:21 grahn Exp $
+/* $Id: main.cc,v 1.3 2011-01-04 00:34:19 grahn Exp $
  *
  * Copyright (c) 2011 Jörgen Grahn
  * All rights reserved.
@@ -50,7 +50,7 @@ namespace {
 	}
 
 	if(dim.bad()) {
-	    os << "ERROR: not a valid JPEG file\n";
+	    os << "ERROR: not a valid " << dim.mime() << " file\n";
 	    return false;
 	}
 

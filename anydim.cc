@@ -1,10 +1,12 @@
-/* $Id: anydim.cc,v 1.20 2011-01-03 23:45:49 grahn Exp $
+/* $Id: anydim.cc,v 1.21 2011-01-04 00:34:19 grahn Exp $
  *
  * Copyright (c) 2010, 2011 Jörgen Grahn
  * All rights reserved.
  *
  */
 #include "anydim.h"
+
+#include <algorithm>
 
 
 namespace {
@@ -16,6 +18,15 @@ namespace {
 	return n;
     }
 
+    static unsigned eat32(const uint8_t*& p)
+    {
+	unsigned n = 0;
+	n = (n<<8) | *p++;
+	n = (n<<8) | *p++;
+	n = (n<<8) | *p++;
+	n = (n<<8) | *p++;
+	return n;
+    }
 }
 
 
@@ -141,5 +152,62 @@ namespace anydim {
 	}
 
 	seen_ += a-c;
+    }
+}
+
+
+namespace {
+
+    /* The PNG file signature and the initial
+     * parts of the IHDR. Immediately after these
+     * the image width and height come.
+     */
+    static const uint8_t pngintro[] = {
+	0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a,
+	0x00, 0x00, 0x00, 0x0d,
+	0x49, 0x48, 0x44, 0x52
+    };
+}
+
+
+namespace anydim {
+
+    const char* PngDim::mime() const
+    {
+	return "image/png";
+    }
+
+    void PngDim::feed(const uint8_t *a, const uint8_t *b)
+    {
+	if(state_==BAD) return;
+
+	std::vector<uint8_t> ws;
+
+	if(!mem_.empty()) {
+	    std::swap(ws, mem_);
+	    ws.insert(ws.end(), a, b);
+	    a = &ws[0];
+	    b = a + ws.size();
+	}
+
+	if(b-a < unsigned(sizeof pngintro + 4 + 4)) {
+	    mem_.insert(mem_.end(), a, b);
+	    return;
+	}
+
+	if(!std::equal(pngintro, pngintro + sizeof pngintro, a)) {
+	    state_ = BAD;
+	    return;
+	}
+
+	state_ = GOOD;
+	a += sizeof pngintro;
+	width = eat32(a);
+	height = eat32(a);
+    }
+
+    void PngDim::eof()
+    {
+	if(state_==UNDECIDED) state_ = BAD;
     }
 }

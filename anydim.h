@@ -1,5 +1,5 @@
 /* -*- c++ -*-
- * $Id: anydim.h,v 1.2 2011-01-03 23:44:21 grahn Exp $
+ * $Id: anydim.h,v 1.3 2011-01-04 00:34:19 grahn Exp $
  *
  * Copyright (c) 2011 Jörgen Grahn
  * All rights reserved.
@@ -118,6 +118,26 @@ namespace anydim {
 	unsigned seen_;
 
 	void eat_entropy(const uint8_t *&a, const uint8_t *b);
+    };
+
+
+    /**
+     * PNG dimension decoder.
+     *
+     * See RFC 2083. The 16 octets before the width and height are
+     * happily fixed and constant. We never bother to parse the rest.
+     */
+    class PngDim : public Dim {
+    public:
+	PngDim() {}
+
+	const char* mime() const;
+
+	void feed(const uint8_t *a, const uint8_t *b);
+	void eof();
+
+    private:
+	std::vector<uint8_t> mem_;
     };
 
 }
