@@ -1,4 +1,4 @@
-/* $Id: main.cc,v 1.6 2011-01-04 23:49:21 grahn Exp $
+/* $Id: main.cc,v 1.7 2011-01-05 00:08:38 grahn Exp $
  *
  * Copyright (c) 2011 Jörgen Grahn
  * All rights reserved.
@@ -25,11 +25,12 @@ namespace {
 
 namespace {
 
-    bool jpegdim(std::ostream& os,
-		 const char* const file,
-		 bool emit_filename)
+    bool dimensions(std::ostream& os,
+		    const char* const file,
+		    bool do_mime,
+		    bool do_filename)
     {
-	if(emit_filename) {
+	if(do_filename && file) {
 	    os << file << ' ';
 	}
 
@@ -56,6 +57,9 @@ namespace {
 	    return false;
 	}
 
+	if(do_mime) {
+	    os << dim.mime() << ' ';
+	}
 	os << dim.width << ' ' << dim.height << '\n';
 	return true;
     }
@@ -69,19 +73,28 @@ int main(int argc, char ** argv)
     const string prog = argv[0];
     const string usage = string("usage: ")
 	+ prog
-	+ " file ...";
-    const char optstring[] = "+";
+	+ " [-i] [-H|-h] file ...";
+    const char optstring[] = "+iHh";
     struct option long_options[] = {
 	{"version", 0, 0, 'v'},
-	{"help", 0, 0, 'h'},
+	{"help", 0, 0, '!'},
 	{0, 0, 0, 0}
     };
 
     int ch;
+    bool do_mime = false;
+    char hflag = 0;
     while((ch = getopt_long(argc, argv,
 			    optstring, &long_options[0], 0)) != -1) {
 	switch(ch) {
+	case 'i':
+	    do_mime = true;
+	    break;
+	case 'H':
 	case 'h':
+	    hflag = ch;
+	    break;
+	case '!':
 	    std::cout << usage << '\n';
 	    return 0;
 	case 'v':
@@ -101,13 +114,25 @@ int main(int argc, char ** argv)
 
     int rc = 0;
 
-    for(int i=optind; i<argc; i++) {
-	if(!jpegdim(std::cout, argv[i], (argc-optind) > 1)) {
+    if(optind==argc) {
+	if(!dimensions(std::cout, 0,
+		       do_mime, false)) {
 	    rc = 1;
 	}
     }
-    if(optind==argc) {
-	rc = jpegdim(std::cout, 0, false)? 0: 1;
+    else {
+	bool do_filenames = (argc-optind > 1);
+	switch(hflag) {
+	case 'h': do_filenames = false; break;
+	case 'H': do_filenames = true; break;
+	}
+
+	for(int i=optind; i<argc; i++) {
+	    if(!dimensions(std::cout, argv[i],
+			   do_mime, do_filenames)) {
+		rc = 1;
+	    }
+	}
     }
 
     return rc;
