@@ -1,5 +1,5 @@
 /* -*- c++ -*-
- * $Id: anydim.h,v 1.5 2011-01-04 23:26:54 grahn Exp $
+ * $Id: anydim.h,v 1.6 2011-01-06 19:48:19 grahn Exp $
  *
  * Copyright (c) 2011 Jörgen Grahn
  * All rights reserved.
@@ -131,6 +131,24 @@ namespace anydim {
 
     private:
 	std::vector<uint8_t> mem_;
+    };
+
+
+    /**
+     * PNM (PPM/PGM/PBM) dimension decoder.
+     *
+     * See ppm(5), pgm(5) and pbm(5) for the file format.
+     */
+    class PnmDim : public Dim {
+    public:
+	PnmDim() {}
+
+	const char* mime() const;
+
+	void feed(const uint8_t *a, const uint8_t *b);
+	void eof();
+
+    private:
     };
 
 

@@ -1,4 +1,4 @@
-/* $Id: anydim.cc,v 1.24 2011-01-04 23:28:55 grahn Exp $
+/* $Id: anydim.cc,v 1.25 2011-01-06 19:48:19 grahn Exp $
  *
  * Copyright (c) 2010, 2011 Jörgen Grahn
  * All rights reserved.
@@ -218,6 +218,7 @@ AnyDim::AnyDim()
 {
     dims_.push_back(new JpegDim);
     dims_.push_back(new PngDim);
+    dims_.push_back(new PnmDim);
 }
 
 
