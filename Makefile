@@ -1,4 +1,4 @@
-# $Id: Makefile,v 1.5 2011-01-06 10:18:59 grahn Exp $
+# $Id: Makefile,v 1.6 2011-01-06 12:03:25 grahn Exp $
 #
 # Makefile
 #
@@ -18,10 +18,17 @@ install: anydim.1
 	install -m755 anydim $(INSTALLBASE)/bin/
 	install -m644 anydim.1 $(INSTALLBASE)/man/man1/
 
+GENIMAGES=test/anydim.prog.jpg test/anydim.gray.jpg test/anydim.jpg test/anydim.png test/anydim.pbm test/anydim.pgm test/anydim.raw.ppm
+
 .PHONY: check checkv
 check: tests
+check: test/anydim.ppm
+check: $(GENIMAGES)
 	./tests
+
 checkv: tests
+checkv: test/anydim.ppm
+checkv: $(GENIMAGES)
 	valgrind -q ./tests
 
 anydim: main.o libanydim.a
@@ -42,6 +49,21 @@ libtest.a: test/dim.o
 test/%.o : test/%.cc
 	$(CXX) -I. $(CXXFLAGS) $(CPPFLAGS) -c -o $@ $<
 
+test/anydim.jpg: test/anydim.ppm
+	cjpeg -outfile $@ $^
+test/anydim.prog.jpg: test/anydim.ppm
+	cjpeg -progressive -outfile $@ $^
+test/anydim.gray.jpg: test/anydim.ppm
+	cjpeg -grayscale -outfile $@ $^
+test/anydim.pbm: test/anydim.pgm
+	pgmtopbm >$@ $^
+test/anydim.pgm: test/anydim.ppm
+	ppmtopgm >$@ $^
+test/anydim.raw.ppm: test/anydim.ppm
+	ppmbrighten -v 100 >$@ $^
+test/anydim.png: test/anydim.ppm
+	pnmtopng >$@ $^
+
 .PHONY: tags
 tags: TAGS
 TAGS:
@@ -56,6 +78,7 @@ clean:
 	$(RM) test.cc
 	$(RM) *.o test/*.o
 	$(RM) *.a
+	$(RM) $(GENIMAGES)
 	$(RM) Makefile.bak core TAGS
 
 love:

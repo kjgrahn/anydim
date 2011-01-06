@@ -1,5 +1,5 @@
 /**
- * $Id: dim.cc,v 1.2 2011-01-06 10:18:59 grahn Exp $
+ * $Id: dim.cc,v 1.3 2011-01-06 12:03:25 grahn Exp $
  *
  * Copyright (c) 2011 Jörgen Grahn
  * All rights reserved.
@@ -71,6 +71,7 @@ namespace {
 
 namespace pnm {
     void test_ppm() { test("test/anydim.ppm", "image/x-portable-pixmap"); }
+    void test_ppm_raw() { test("test/anydim.raw.ppm", "image/x-portable-pixmap"); }
     void test_pgm() { test("test/anydim.pgm", "image/x-portable-graymap"); }
     void test_pbm() { test("test/anydim.pbm", "image/x-portable-bitmap"); }
 }
