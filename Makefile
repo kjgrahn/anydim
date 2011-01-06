@@ -1,4 +1,4 @@
-# $Id: Makefile,v 1.4 2011-01-03 23:44:21 grahn Exp $
+# $Id: Makefile,v 1.5 2011-01-06 10:18:59 grahn Exp $
 #
 # Makefile
 #
@@ -27,8 +27,20 @@ checkv: tests
 anydim: main.o libanydim.a
 	$(CXX) $(CXXFLAGS) -o $@ main.o -L. -lanydim
 
+test.cc: libtest.a
+	testicle -o$@ $^
+
+tests: test.o libanydim.a libtest.a
+	$(CXX) -o $@ test.o -L. -ltest -lanydim
+
 libanydim.a: anydim.o
 	$(AR) -r $@ $^
+
+libtest.a: test/dim.o
+	$(AR) -r $@ $^
+
+test/%.o : test/%.cc
+	$(CXX) -I. $(CXXFLAGS) $(CPPFLAGS) -c -o $@ $<
 
 .PHONY: tags
 tags: TAGS
@@ -36,12 +48,14 @@ TAGS:
 	etags *.cc *.h
 
 depend:
-	makedepend -- $(CXXFLAGS) $(CPPFLAGS) -- -Y -I. *.cc
+	makedepend -- $(CXXFLAGS) $(CPPFLAGS) -- -Y -I. *.cc test/*.cc
 
 .PHONY: clean
 clean:
-	$(RM) anydim
-	$(RM) *.o
+	$(RM) anydim tests
+	$(RM) test.cc
+	$(RM) *.o test/*.o
+	$(RM) *.a
 	$(RM) Makefile.bak core TAGS
 
 love:
@@ -51,3 +65,4 @@ love:
 
 anydim.o: anydim.h
 main.o: anydim.h
+test/dim.o: anydim.h
