@@ -1,11 +1,11 @@
 /**
- * $Id: dim.cc,v 1.3 2011-01-06 12:03:25 grahn Exp $
+ * $Id: dim.cc,v 1.4 2011-01-06 12:13:38 grahn Exp $
  *
  * Copyright (c) 2011 Jörgen Grahn
  * All rights reserved.
  *
- * This code assumes certain image files exist and are 48 × 21 pixels.
- * test/anydim.ppm
+ * These tests assume certain image files exist and are 48 × 21 pixels.
+ * If they don't, the tests flag ERROR rather than PASS/FAIL.
  * 
  */
 #include <anydim.h>
@@ -84,4 +84,29 @@ namespace jfif {
     void test_plain() { test("test/anydim.jpg", "image/jpeg"); }
     void test_gray() { test("test/anydim.gray.jpg", "image/jpeg"); }
     void test_progressive() { test("test/anydim.prog.jpg", "image/jpeg"); }
+}
+
+namespace garbage {
+
+    /* 10K of garbage should be enough to decide there's no
+     * image here.
+     */
+    void test()
+    {
+	anydim::AnyDim dim;
+	uint8_t a[1];
+	for(int i=0; i<10000; ++i) {
+	    a[0] = i;
+	    dim.feed(a, a+1);
+	    testicle::assert_(dim.undecided() || dim.bad());
+	}
+	testicle::assert_(dim.bad());
+    }
+
+    void test_empty()
+    {
+	anydim::AnyDim dim;
+	dim.eof();
+	testicle::assert_(dim.bad());
+    }
 }
