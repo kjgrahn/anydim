@@ -1,4 +1,4 @@
-.\" $Id: anydim.1,v 1.8 2011-01-05 00:08:38 grahn Exp $
+.\" $Id: anydim.1,v 1.9 2011-01-07 22:34:04 grahn Exp $
 .\" $Name:  $
 .
 .
@@ -31,11 +31,25 @@ anydim \- print width and height of images
 simply prints the width and height of the image files given
 as command-line arguments.
 If none are given, it reads standard input instead.
+.PP
+Just like
+.BR file (1),
+.B anydim
+takes care not to read more data than needed.
+The main reason I don't use
+.B file
+is that it only prints the dimensions of some image formats.
 .
 .SS "Supported file formats"
 .IP JPEG
 Plain JFIF or EXIF; progressive JPEG.
 .IP PNG
+.IP PNM
+PPM, PGM and PPM in both the
+.I plain
+and the more common
+.I raw
+forms.
 .
 .SH "OPTIONS"
 .BP \-i
@@ -50,13 +64,6 @@ Never print the image file name.
 .
 .SH "EXIT CODE"
 Non-zero if at least one image failed to yield its dimensions.
-.
-.SH "BUGS"
-Only
-.B JPEG
-images are supported so far, despite the
-.B any
-in its name.
 .
 .SH "AUTHOR"
 J\(:orgen Grahn

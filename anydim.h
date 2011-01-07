@@ -1,5 +1,5 @@
 /* -*- c++ -*-
- * $Id: anydim.h,v 1.6 2011-01-06 19:48:19 grahn Exp $
+ * $Id: anydim.h,v 1.7 2011-01-07 22:34:04 grahn Exp $
  *
  * Copyright (c) 2011 Jörgen Grahn
  * All rights reserved.
@@ -141,7 +141,7 @@ namespace anydim {
      */
     class PnmDim : public Dim {
     public:
-	PnmDim() {}
+	PnmDim();
 
 	const char* mime() const;
 
@@ -149,6 +149,10 @@ namespace anydim {
 	void eof();
 
     private:
+	void feed(char ch);
+	bool comment_;
+	unsigned pnmstate_;
+	const char* mime_;
     };
 
 
