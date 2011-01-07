@@ -1,5 +1,10 @@
 _________________________________________
 
+anydim 1.1 (2010-01-07):
+
+- Support for PPM/PGM/PBM images.
+- Added a bunch of unit tests.
+
 anydim 1.0 (2010-01-05):
 
 - Support for PNG files, too.
@@ -20,5 +25,5 @@ anydim 0.1 (2010-01-03):
 - First, incomplete release.
 
 _________________________________________
-$Id: NEWS,v 1.4 2011-01-05 00:10:59 grahn Exp $
+$Id: NEWS,v 1.5 2011-01-07 22:37:29 grahn Exp $
 $Name:  $
