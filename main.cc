@@ -1,4 +1,4 @@
-/* $Id: main.cc,v 1.7 2011-01-05 00:08:38 grahn Exp $
+/* $Id: main.cc,v 1.8 2011-01-08 12:25:43 grahn Exp $
  *
  * Copyright (c) 2011 Jörgen Grahn
  * All rights reserved.
@@ -14,14 +14,6 @@
 
 #include "anydim.h"
 
-
-namespace {
-
-    const char* version()
-    {
-	return "unpublished";
-    }
-}
 
 namespace {
 
@@ -98,7 +90,7 @@ int main(int argc, char ** argv)
 	    std::cout << usage << '\n';
 	    return 0;
 	case 'v':
-	    std::cout << "anydim " << version() << '\n'
+	    std::cout << "anydim " << anydim::version() << '\n'
 		      << "Copyright (c) 2011 Jörgen Grahn\n";
 	    return 0;
 	    break;

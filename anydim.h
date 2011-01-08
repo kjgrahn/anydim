@@ -1,5 +1,5 @@
 /* -*- c++ -*-
- * $Id: anydim.h,v 1.7 2011-01-07 22:34:04 grahn Exp $
+ * $Id: anydim.h,v 1.8 2011-01-08 12:25:43 grahn Exp $
  *
  * Copyright (c) 2011 Jörgen Grahn
  * All rights reserved.
@@ -9,9 +9,12 @@
 #define ANYDIM_ANYDIM_H
 
 #include <vector>
+#include <string>
 #include <stdint.h>
 
 namespace anydim {
+
+    std::string version();
 
     /**
      * Base class for dimension (width × height) decoders for

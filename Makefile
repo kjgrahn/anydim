@@ -1,4 +1,4 @@
-# $Id: Makefile,v 1.7 2011-01-06 19:48:19 grahn Exp $
+# $Id: Makefile,v 1.8 2011-01-08 12:25:43 grahn Exp $
 #
 # Makefile
 #
@@ -42,6 +42,7 @@ tests: test.o libanydim.a libtest.a
 
 libanydim.a: anydim.o
 libanydim.a: pnmdim.o
+libanydim.a: version.o
 	$(AR) -r $@ $^
 
 libtest.a: test/dim.o
@@ -90,4 +91,5 @@ love:
 anydim.o: anydim.h
 main.o: anydim.h
 pnmdim.o: anydim.h
+version.o: anydim.h
 test/dim.o: anydim.h
