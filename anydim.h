@@ -1,5 +1,7 @@
 /* -*- c++ -*-
- * $Id: anydim.h,v 1.8 2011-01-08 12:25:43 grahn Exp $
+ * $Id: anydim.h,v 1.9 2011-02-05 16:11:05 grahn Exp $
+ *
+ * anydim - print width and height of images
  *
  * Copyright (c) 2011 Jörgen Grahn
  * All rights reserved.

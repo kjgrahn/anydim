@@ -1,4 +1,4 @@
-# $Id: Makefile,v 1.8 2011-01-08 12:25:43 grahn Exp $
+# $Id: Makefile,v 1.9 2011-02-05 16:11:05 grahn Exp $
 #
 # Makefile
 #
@@ -15,8 +15,12 @@ all: anydim
 .PHONY: install
 install: anydim
 install: anydim.1
+install: libanydim.a
+install: anydim.h
 	install -m755 anydim $(INSTALLBASE)/bin/
 	install -m644 anydim.1 $(INSTALLBASE)/man/man1/
+	install -m644 libanydim.a $(INSTALLBASE)/lib
+	install -m644 anydim.h $(INSTALLBASE)/include
 
 GENIMAGES=test/anydim.prog.jpg test/anydim.gray.jpg test/anydim.jpg test/anydim.png test/anydim.pbm test/anydim.pgm test/anydim.raw.ppm
 

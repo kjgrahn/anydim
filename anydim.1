@@ -1,4 +1,4 @@
-.\" $Id: anydim.1,v 1.9 2011-01-07 22:34:04 grahn Exp $
+.\" $Id: anydim.1,v 1.10 2011-02-05 16:11:05 grahn Exp $
 .\" $Name:  $
 .
 .
@@ -8,7 +8,7 @@
 ..
 .
 .
-.TH anydim 1 "JAN 2011" "Anydim" "User Manuals"
+.TH anydim 1 "FEB 2011" "Anydim" "User Manuals"
 .
 .SH "NAME"
 anydim \- print width and height of images
@@ -44,6 +44,7 @@ is that it only prints the dimensions of some image formats.
 .IP JPEG
 Plain JFIF or EXIF; progressive JPEG.
 .IP PNG
+Portable Network Graphics.
 .IP PNM
 PPM, PGM and PPM in both the
 .I plain
@@ -64,6 +65,12 @@ Never print the image file name.
 .
 .SH "EXIT CODE"
 Non-zero if at least one image failed to yield its dimensions.
+.
+.SH "BUGS"
+Other popular image file formats should be included.
+If nothing else, at least
+.B gzipped
+versions of the ones mentioned above.
 .
 .SH "AUTHOR"
 J\(:orgen Grahn
