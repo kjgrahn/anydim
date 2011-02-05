@@ -1,4 +1,4 @@
-/* $Id: version.cc,v 1.2 2011-01-08 12:59:33 grahn Exp $
+/* $Id: version.cc,v 1.3 2011-02-05 11:10:57 grahn Exp $
  *
  * Copyright (c) 2011 Jörgen Grahn
  * All rights reserved.
@@ -28,8 +28,6 @@
  */
 std::string anydim::version()
 {
-    using std::string;
-
     do {
 	static char dollar_name[] = "$Name:  $";
 	char* a = dollar_name;
@@ -58,7 +56,7 @@ std::string anydim::version()
 	}
 
 	std::replace(a, b, '-', '.');
-	return string(a, b);
+	return std::string(a, b);
 
     } while(0);
 
