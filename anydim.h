@@ -35,7 +35,7 @@ namespace anydim {
     class Dim {
     public:
 	Dim() : state_(UNDECIDED) {}
-	virtual ~Dim() {}
+	virtual ~Dim() = default;
 
 	virtual const char* mime() const = 0;
 
@@ -87,17 +87,17 @@ namespace anydim {
      * Refs: <http://en.wikipedia.org/wiki/JPEG#Syntax_and_structure>,
      * and some googling, and the libjpeg sources.
      */
-    class JpegDim : public Dim {
+    class JpegDim final: public Dim {
     public:
 	JpegDim()
 	    : in_entropy_(false),
 	      seen_(0)
 	{}
 
-	const char* mime() const;
+	const char* mime() const override;
 
-	void feed(const uint8_t *a, const uint8_t *b);
-	void eof();
+	void feed(const uint8_t *a, const uint8_t *b) override;
+	void eof() override;
 
     private:
 	std::vector<uint8_t> mem_;
@@ -125,14 +125,14 @@ namespace anydim {
      * See RFC 2083. The 16 octets before the width and height are
      * happily fixed and constant. We never bother to parse the rest.
      */
-    class PngDim : public Dim {
+    class PngDim final: public Dim {
     public:
 	PngDim() {}
 
-	const char* mime() const;
+	const char* mime() const override;
 
-	void feed(const uint8_t *a, const uint8_t *b);
-	void eof();
+	void feed(const uint8_t *a, const uint8_t *b) override;
+	void eof() override;
 
     private:
 	std::vector<uint8_t> mem_;
@@ -144,14 +144,14 @@ namespace anydim {
      *
      * See ppm(5), pgm(5) and pbm(5) for the file format.
      */
-    class PnmDim : public Dim {
+    class PnmDim final: public Dim {
     public:
 	PnmDim();
 
-	const char* mime() const;
+	const char* mime() const override;
 
-	void feed(const uint8_t *a, const uint8_t *b);
-	void eof();
+	void feed(const uint8_t *a, const uint8_t *b) override;
+	void eof() override;
 
     private:
 	void feed(char ch);
@@ -167,15 +167,15 @@ namespace anydim {
      * !(undecided || bad).
      *
      */
-    class AnyDim : public Dim {
+    class AnyDim final: public Dim {
     public:
 	AnyDim();
 	~AnyDim();
 
-	const char* mime() const;
+	const char* mime() const override;
 
-	void feed(const uint8_t *a, const uint8_t *b);
-	void eof();
+	void feed(const uint8_t *a, const uint8_t *b) override;
+	void eof() override;
 
     private:
 	std::vector<Dim*> dims_;
