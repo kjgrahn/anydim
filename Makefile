@@ -5,9 +5,9 @@
 # Copyright (c) 2010, 2011 Jörgen Grahn
 # All rights reserved.
 
-SHELL=/bin/sh
+SHELL=/bin/bash
 INSTALLBASE=/usr/local
-CXXFLAGS=-Wall -Wextra -pedantic -std=c++98 -g -O3
+CXXFLAGS=-Wall -Wextra -pedantic -std=c++14 -g -Os
 
 .PHONY: all
 all: anydim
@@ -33,13 +33,13 @@ check: $(GENIMAGES)
 checkv: tests
 checkv: test/anydim.ppm
 checkv: $(GENIMAGES)
-	valgrind -q ./tests
+	valgrind -q ./tests -v
 
 anydim: main.o libanydim.a
 	$(CXX) $(CXXFLAGS) -o $@ main.o -L. -lanydim
 
 test.cc: libtest.a
-	testicle -o$@ $^
+	orchis -o$@ $^
 
 tests: test.o libanydim.a libtest.a
 	$(CXX) -o $@ test.o -L. -ltest -lanydim
@@ -52,8 +52,7 @@ libanydim.a: version.o
 libtest.a: test/dim.o
 	$(AR) -r $@ $^
 
-test/%.o : test/%.cc
-	$(CXX) -I. $(CXXFLAGS) $(CPPFLAGS) -c -o $@ $<
+test/%.o: CPPFLAGS+=-I.
 
 test/anydim.jpg: test/anydim.ppm
 	cjpeg -outfile $@ $^
@@ -75,9 +74,6 @@ tags: TAGS
 TAGS:
 	etags *.cc *.h
 
-depend:
-	makedepend -- $(CXXFLAGS) $(CPPFLAGS) -- -Y -I. *.cc test/*.cc
-
 .PHONY: clean
 clean:
 	$(RM) anydim tests
@@ -86,14 +82,20 @@ clean:
 	$(RM) *.a
 	$(RM) $(GENIMAGES)
 	$(RM) Makefile.bak core TAGS
+	$(RM) -r dep
 
 love:
 	@echo "not war?"
 
-# DO NOT DELETE
+$(shell mkdir -p dep/test)
+DEPFLAGS=-MT $@ -MMD -MP -MF dep/$*.Td
+COMPILE.cc=$(CXX) $(DEPFLAGS) $(CXXFLAGS) $(CPPFLAGS) $(TARGET_ARCH) -c
 
-anydim.o: anydim.h
-main.o: anydim.h
-pnmdim.o: anydim.h
-version.o: anydim.h
-test/dim.o: anydim.h
+%.o: %.cc
+	$(COMPILE.cc) $(OUTPUT_OPTION) $<
+	@mv dep/$*.{Td,d}
+
+dep/%.d: ;
+dep/test/%.d: ;
+-include dep/*.d
+-include dep/test/*.d

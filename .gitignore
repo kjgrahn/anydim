@@ -1,0 +1,10 @@
+anydim
+*.o
+lib*.a
+dep/
+tests
+test.cc
+test/*.jpg
+test/*.p?m
+test/*.png
+TAGS
