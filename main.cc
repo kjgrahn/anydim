@@ -20,7 +20,8 @@ namespace {
     bool dimensions(std::ostream& os,
 		    const char* const file,
 		    bool do_mime,
-		    bool do_filename)
+		    bool do_filename,
+		    bool do_landscape)
     {
 	if(do_filename && file) {
 	    os << file << ' ';
@@ -52,7 +53,12 @@ namespace {
 	if(do_mime) {
 	    os << dim.mime() << ' ';
 	}
-	os << dim.width << ' ' << dim.height << '\n';
+
+	auto a = dim.width;
+	auto b = dim.height;
+	if(a < b && do_landscape) std::swap(a, b);
+
+	os << a << ' ' << b << '\n';
 	return true;
     }
 }
@@ -65,9 +71,10 @@ int main(int argc, char ** argv)
     const string prog = argv[0];
     const string usage = string("usage: ")
 	+ prog
-	+ " [-i] [-H|-h] file ...";
+	+ " [-i] [-H|-h] [--landscape] file ...";
     const char optstring[] = "+iHh";
     struct option long_options[] = {
+	{"landscape", 0, 0, 'L'},
 	{"version", 0, 0, 'v'},
 	{"help", 0, 0, '!'},
 	{0, 0, 0, 0}
@@ -75,12 +82,16 @@ int main(int argc, char ** argv)
 
     int ch;
     bool do_mime = false;
+    bool do_landscape = false;
     char hflag = 0;
     while((ch = getopt_long(argc, argv,
 			    optstring, &long_options[0], 0)) != -1) {
 	switch(ch) {
 	case 'i':
 	    do_mime = true;
+	    break;
+	case 'L':
+	    do_landscape = true;
 	    break;
 	case 'H':
 	case 'h':
@@ -108,7 +119,8 @@ int main(int argc, char ** argv)
 
     if(optind==argc) {
 	if(!dimensions(std::cout, 0,
-		       do_mime, false)) {
+		       do_mime, false,
+		       do_landscape)) {
 	    rc = 1;
 	}
     }
@@ -121,7 +133,8 @@ int main(int argc, char ** argv)
 
 	for(int i=optind; i<argc; i++) {
 	    if(!dimensions(std::cout, argv[i],
-			   do_mime, do_filenames)) {
+			   do_mime, do_filenames,
+			   do_landscape)) {
 		rc = 1;
 	    }
 	}

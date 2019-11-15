@@ -17,6 +17,7 @@ anydim \- print width and height of images
 .B anydim
 .RB [ \-i ]
 .RB [ \-H | \-h ]
+.RB [ --landscape ]
 .I file
 \&...
 .br
@@ -68,6 +69,12 @@ e.g.
 Print the image file name, even if only one file was given.
 .BP \-h
 Never print the image file name.
+.BP --landscape
+Print dimensions in landscape mode, i.e. as
+.I "height width"
+if the image is higher than it is wide.
+Useful if you're more interested in image sizes and less
+interested in how the images are rotated.
 .
 .SH "EXIT CODE"
 Non-zero if at least one image failed to yield its dimensions.
