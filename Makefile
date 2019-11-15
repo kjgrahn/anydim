@@ -46,9 +46,12 @@ tests: test.o libanydim.a libtest.a
 
 libanydim.a: anydim.o
 libanydim.a: pnmdim.o
+libanydim.a: jfif.o
 	$(AR) -r $@ $^
 
 libtest.a: test/dim.o
+libtest.a: test/jfif.o
+libtest.a: test/hexread.o
 	$(AR) -r $@ $^
 
 test/%.o: CPPFLAGS+=-I.
