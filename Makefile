@@ -46,7 +46,6 @@ tests: test.o libanydim.a libtest.a
 
 libanydim.a: anydim.o
 libanydim.a: pnmdim.o
-libanydim.a: version.o
 	$(AR) -r $@ $^
 
 libtest.a: test/dim.o

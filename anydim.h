@@ -16,8 +16,6 @@
 
 namespace anydim {
 
-    std::string version();
-
     /**
      * Base class for dimension (width × height) decoders for
      * different image formats.

@@ -90,7 +90,7 @@ int main(int argc, char ** argv)
 	    std::cout << usage << '\n';
 	    return 0;
 	case 'v':
-	    std::cout << "anydim " << anydim::version() << '\n'
+	    std::cout << "anydim 1.3\n"
 		      << "Copyright (c) 2011 Jörgen Grahn\n";
 	    return 0;
 	    break;
