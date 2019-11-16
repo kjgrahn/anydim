@@ -16,7 +16,9 @@
 #include <fstream>
 #include <errno.h>
 
-#include <testicle.h>
+#include <orchis.h>
+
+using orchis::TC;
 
 using std::string;
 using std::vector;
@@ -55,10 +57,10 @@ namespace {
 	    dim.feed(a, a+1);
 	    ++a;
 	}
-	testicle::assert_eq(dim.bad(), false);
-	testicle::assert_eq(dim.mime(), mime);
-	testicle::assert_eq(dim.width, width);
-	testicle::assert_eq(dim.height, height);
+	orchis::assert_eq(dim.bad(), false);
+	orchis::assert_eq(dim.mime(), mime);
+	orchis::assert_eq(dim.width, width);
+	orchis::assert_eq(dim.height, height);
     }
 
 
@@ -70,20 +72,20 @@ namespace {
 }
 
 namespace pnm {
-    void test_ppm() { test("test/anydim.ppm", "image/x-portable-pixmap"); }
-    void test_ppm_raw() { test("test/anydim.raw.ppm", "image/x-portable-pixmap"); }
-    void test_pgm() { test("test/anydim.pgm", "image/x-portable-graymap"); }
-    void test_pbm() { test("test/anydim.pbm", "image/x-portable-bitmap"); }
+    void ppm(TC) { test("test/anydim.ppm", "image/x-portable-pixmap"); }
+    void ppm_raw(TC) { test("test/anydim.raw.ppm", "image/x-portable-pixmap"); }
+    void pgm(TC) { test("test/anydim.pgm", "image/x-portable-graymap"); }
+    void pbm(TC) { test("test/anydim.pbm", "image/x-portable-bitmap"); }
 }
 
 namespace png {
-    void test() { ::test("test/anydim.png", "image/png"); }
+    void test(TC) { ::test("test/anydim.png", "image/png"); }
 }
 
 namespace jfif {
-    void test_plain() { test("test/anydim.jpg", "image/jpeg"); }
-    void test_gray() { test("test/anydim.gray.jpg", "image/jpeg"); }
-    void test_progressive() { test("test/anydim.prog.jpg", "image/jpeg"); }
+    void plain(TC) { test("test/anydim.jpg", "image/jpeg"); }
+    void gray(TC) { test("test/anydim.gray.jpg", "image/jpeg"); }
+    void progressive(TC) { test("test/anydim.prog.jpg", "image/jpeg"); }
 }
 
 namespace garbage {
@@ -91,22 +93,22 @@ namespace garbage {
     /* 10K of garbage should be enough to decide there's no
      * image here.
      */
-    void test()
+    void test(TC)
     {
 	anydim::AnyDim dim;
 	uint8_t a[1];
 	for(int i=0; i<10000; ++i) {
 	    a[0] = i;
 	    dim.feed(a, a+1);
-	    testicle::assert_(dim.undecided() || dim.bad());
+	    orchis::assert_(dim.undecided() || dim.bad());
 	}
-	testicle::assert_(dim.bad());
+	orchis::assert_(dim.bad());
     }
 
-    void test_empty()
+    void empty(TC)
     {
 	anydim::AnyDim dim;
 	dim.eof();
-	testicle::assert_(dim.bad());
+	orchis::assert_(dim.bad());
     }
 }
