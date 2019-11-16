@@ -36,7 +36,10 @@ namespace jfif {
     namespace marker {
 	constexpr unsigned SOI  = 0xd8;
 	constexpr unsigned SOF0 = 0xc0;
+	constexpr unsigned SOF1 = 0xc1;
 	constexpr unsigned SOF2 = 0xc2;
+	constexpr unsigned SOF9 = 0xc9;
+	constexpr unsigned SOFa = 0xca;
 	constexpr unsigned DHT 	= 0xc4;
 	constexpr unsigned DQT 	= 0xdb;
 	constexpr unsigned DRI 	= 0xdd;

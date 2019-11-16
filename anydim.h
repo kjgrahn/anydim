@@ -14,6 +14,10 @@
 #include <string>
 #include <stdint.h>
 
+namespace jfif {
+    class Decoder;
+}
+
 namespace anydim {
 
     /**
@@ -53,26 +57,10 @@ namespace anydim {
 
 
     /**
-     * JPEG dimension decoder.
+     * JPEG (JFIF) dimension decoder. See jfif::Decoder for more
+     * on the overall format.
      *
-     * The JPEG standard is not available for free, so here's a short summary
-     * of the JIF format (including JFIF and whatever you call JIF+EXIF).
-     *
-     * A JIF file is a series of /segments/ introduced by /markers/.
-     *
-     * ff xx - marker for a fixed-size segment. All I've seen have xx in
-     *         the range d0--d9 and have a fixed size zero
-     *         (SOI, EOI and RSTn).
-     *
-     * ff xx - marker
-     * nn nn - 2 + octet length of segment data
-     * ...   - segment data
-     *
-     * Either kind of segment may be followed by entropy-encoded data,
-     * containing no ff octets except followed by an 00 octet.
-     *
-     * The file starts with a SOI followed by an APPn, and ends with
-     * EOI.  The width and height of the image is in a SOF0 or (for
+     * The width and height of the image is in a SOF0 or (for
      * progressive JPEG) SOF2 segment, which both appear to be
      *
      * 1 octet  something
@@ -87,10 +75,8 @@ namespace anydim {
      */
     class JpegDim final: public Dim {
     public:
-	JpegDim()
-	    : in_entropy_(false),
-	      seen_(0)
-	{}
+	JpegDim();
+	~JpegDim();
 
 	const char* mime() const override;
 
@@ -98,22 +84,7 @@ namespace anydim {
 	void eof() override;
 
     private:
-	std::vector<uint8_t> mem_;
-
-	enum Marker {
-	    SOI  = 0xffd8,  DQT  = 0xffdb,
-	    SOF0 = 0xffc0,  DRI  = 0xffdd,
-	    SOF1 = 0xffc1,  SOS  = 0xffda,
-	    SOF2 = 0xffc2,  APP0 = 0xffe0,
-	    SOF9 = 0xffc9,  APP1 = 0xffe1,
-	    SOFa = 0xffca,  COM  = 0xfffe,
-	    DHT  = 0xffc4,  EOI  = 0xffd9
-	};
-
-	bool in_entropy_;
-	unsigned seen_;
-
-	void eat_entropy(const uint8_t *&a, const uint8_t *b);
+	jfif::Decoder* const decoder;
     };
 
 
