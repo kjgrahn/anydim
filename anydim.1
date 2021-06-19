@@ -8,7 +8,7 @@
 ..
 .
 .
-.TH anydim 1 "NOV 2019" "Anydim" "User Manuals"
+.TH anydim 1 "JUN 2021" "Anydim" "User Manuals"
 .
 .SH "NAME"
 anydim \- print width and height of images
@@ -50,6 +50,11 @@ print the dimensions; the OpenBSD version does not.
 .SS "Supported file formats"
 .IP JPEG
 Plain JFIF or EXIF; progressive JPEG.
+.IP
+Note, however, that the EXIF information is
+.IR ignored ,
+with may mean that the dimensions are shown as if a portrait image is
+rotated to landscape mode.
 .IP PNG
 Portable Network Graphics.
 .IP PNM
@@ -85,6 +90,8 @@ Other popular image file formats should be included.
 If nothing else, at least
 .B gzipped
 versions of the ones mentioned above.
+.PP
+There should (see above) be better support for EXIF.
 .
 .SH "AUTHOR"
 J\(:orgen Grahn
