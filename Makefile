@@ -8,9 +8,11 @@
 SHELL=/bin/bash
 INSTALLBASE=/usr/local
 CXXFLAGS=-Wall -Wextra -pedantic -std=c++14 -g -Os
+ARFLAGS=rTP
 
 .PHONY: all
 all: anydim
+all: tests
 
 .PHONY: install
 install: anydim
@@ -47,12 +49,15 @@ tests: test.o libanydim.a libtest.a
 libanydim.a: anydim.o
 libanydim.a: pnmdim.o
 libanydim.a: jfif.o
-	$(AR) -r $@ $^
+libanydim.a: tiff/tiff.o
+libanydim.a: tiff/range.o
+	$(AR) $(ARFLAGS) $@ $^
 
 libtest.a: test/dim.o
 libtest.a: test/jfif.o
 libtest.a: test/hexread.o
-	$(AR) -r $@ $^
+libtest.a: test/tiff.o
+	$(AR) $(ARFLAGS) $@ $^
 
 test/%.o: CPPFLAGS+=-I.
 
@@ -80,7 +85,7 @@ TAGS:
 clean:
 	$(RM) anydim tests
 	$(RM) test.cc
-	$(RM) *.o test/*.o
+	$(RM) *.o {test,tiff}/*.o
 	$(RM) *.a
 	$(RM) $(GENIMAGES)
 	$(RM) Makefile.bak core TAGS
@@ -89,7 +94,7 @@ clean:
 love:
 	@echo "not war?"
 
-$(shell mkdir -p dep/test)
+$(shell mkdir -p dep/{test,tiff})
 DEPFLAGS=-MT $@ -MMD -MP -MF dep/$*.Td
 COMPILE.cc=$(CXX) $(DEPFLAGS) $(CXXFLAGS) $(CPPFLAGS) $(TARGET_ARCH) -c
 
@@ -98,6 +103,8 @@ COMPILE.cc=$(CXX) $(DEPFLAGS) $(CXXFLAGS) $(CPPFLAGS) $(TARGET_ARCH) -c
 	@mv dep/$*.{Td,d}
 
 dep/%.d: ;
+dep/tiff/%.d: ;
 dep/test/%.d: ;
 -include dep/*.d
+-include dep/tiff/*.d
 -include dep/test/*.d
