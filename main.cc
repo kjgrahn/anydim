@@ -72,7 +72,7 @@ int main(int argc, char ** argv)
     const string usage = string("usage: ")
 	+ prog
 	+ " [-i] [-H|-h] [--landscape] file ...";
-    const char optstring[] = "+iHh";
+    const char optstring[] = "iHhL";
     struct option long_options[] = {
 	{"landscape", 0, 0, 'L'},
 	{"version", 0, 0, 'v'},
