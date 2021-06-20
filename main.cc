@@ -1,6 +1,6 @@
 /* $Id: main.cc,v 1.8 2011-01-08 12:25:43 grahn Exp $
  *
- * Copyright (c) 2011 Jörgen Grahn
+ * Copyright (c) 2011, 2021 Jörgen Grahn
  * All rights reserved.
  *
  */
@@ -21,6 +21,7 @@ namespace {
 		    const char* const file,
 		    bool do_mime,
 		    bool do_filename,
+		    bool do_exif,
 		    bool do_landscape)
     {
 	if(do_filename && file) {
@@ -31,7 +32,7 @@ namespace {
 	if(file) inf.open(file);
 	std::istream& in = file? inf: std::cin;
 
-	anydim::AnyDim dim;
+	anydim::AnyDim dim {do_exif};
 	char buf[4096];
 	while(in && dim.undecided()) {
 	    in.read(buf, sizeof buf);
@@ -71,10 +72,11 @@ int main(int argc, char ** argv)
     const string prog = argv[0];
     const string usage = string("usage: ")
 	+ prog
-	+ " [-i] [-H|-h] [--landscape] file ...";
-    const char optstring[] = "iHhL";
+	+ " [-i] [-H|-h] [--no-exif] [--landscape] file ...";
+    const char optstring[] = "iHhLX";
     struct option long_options[] = {
 	{"landscape", 0, 0, 'L'},
+	{"no-exif", 0, 0, 'X'},
 	{"version", 0, 0, 'v'},
 	{"help", 0, 0, '!'},
 	{0, 0, 0, 0}
@@ -83,6 +85,7 @@ int main(int argc, char ** argv)
     int ch;
     bool do_mime = false;
     bool do_landscape = false;
+    bool do_exif = true;
     char hflag = 0;
     while((ch = getopt_long(argc, argv,
 			    optstring, &long_options[0], 0)) != -1) {
@@ -92,6 +95,10 @@ int main(int argc, char ** argv)
 	    break;
 	case 'L':
 	    do_landscape = true;
+	    do_exif = false;
+	    break;
+	case 'X':
+	    do_exif = false;
 	    break;
 	case 'H':
 	case 'h':
@@ -102,7 +109,7 @@ int main(int argc, char ** argv)
 	    return 0;
 	case 'v':
 	    std::cout << "anydim 1.4\n"
-		      << "Copyright (c) 2011, 2019 Jörgen Grahn\n";
+		      << "Copyright (c) 2011, 2019, 2021 Jörgen Grahn\n";
 	    return 0;
 	    break;
 	case ':':
@@ -120,7 +127,7 @@ int main(int argc, char ** argv)
     if(optind==argc) {
 	if(!dimensions(std::cout, 0,
 		       do_mime, false,
-		       do_landscape)) {
+		       do_exif, do_landscape)) {
 	    rc = 1;
 	}
     }
@@ -134,7 +141,7 @@ int main(int argc, char ** argv)
 	for(int i=optind; i<argc; i++) {
 	    if(!dimensions(std::cout, argv[i],
 			   do_mime, do_filenames,
-			   do_landscape)) {
+			   do_exif, do_landscape)) {
 		rc = 1;
 	    }
 	}

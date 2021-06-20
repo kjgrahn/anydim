@@ -18,6 +18,7 @@ anydim \- print width and height of images
 .RB [ \-i ]
 .RB [ \-H | \-h ]
 .RB [ --landscape ]
+.RB [ --no-exif ]
 .I file
 \&...
 .br
@@ -51,10 +52,11 @@ print the dimensions; the OpenBSD version does not.
 .IP JPEG
 Plain JFIF or EXIF; progressive JPEG.
 .IP
-Note, however, that the EXIF information is
-.IR ignored ,
-with may mean that the dimensions are shown as if a portrait image is
-rotated to landscape mode.
+This includes reading the Exif
+.I Orientation
+tag.  Often, a portrait-mode photo taken with a digital camera
+is a landscape JPEG, and portrait only when you look at the Exif information,
+and take this tag into account.
 .IP PNG
 Portable Network Graphics.
 .IP PNM
@@ -65,13 +67,16 @@ and the more common
 forms.
 .
 .SH "OPTIONS"
+.
 .BP \-i
 Print the MIME type of each image along with its dimensions,
 e.g.
 .br
 .IR image/jpeg\~1009\~948 .
+.
 .BP \-H
 Print the image file name, even if only one file was given.
+.
 .BP \-h
 Never print the image file name.
 .
@@ -81,6 +86,13 @@ Print dimensions in landscape mode, i.e. as
 if the image is higher than it is wide.
 Useful if you're more interested in image sizes and less
 interested in how the images are rotated.
+.
+.BP --no-exif\fP,\ \fP\-X
+Ignore the EXIF information in JPEG files, if it exists. The only effect this
+can have is incorrectly reporting portrait dimensions as landscape or
+the other way around \- the EXIF
+.B Orientation
+tag has the ability to rotate images, and cameras tend to use it.
 .
 .SH "EXIT CODE"
 Non-zero if at least one image failed to yield its dimensions.

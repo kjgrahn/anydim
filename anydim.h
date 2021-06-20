@@ -70,12 +70,14 @@ namespace anydim {
      *
      * The same goes for at least SOF1, SOF9 and SOF10.
      *
-     * Refs: <http://en.wikipedia.org/wiki/JPEG#Syntax_and_structure>,
-     * and some googling, and the libjpeg sources.
+     * 	   Refs: <http://en.wikipedia.org/wiki/JPEG#Syntax_and_structure>,
+     * 	   and some googling, and the libjpeg sources.
+     *
+     * This width x height may be modified by Exif (TIFF?) Orientation.
      */
     class JpegDim final: public Dim {
     public:
-	JpegDim();
+	explicit JpegDim(bool use_exif);
 	~JpegDim();
 
 	const char* mime() const override;
@@ -85,6 +87,7 @@ namespace anydim {
 
     private:
 	jfif::Decoder* const decoder;
+	const bool use_exif;
     };
 
 
@@ -138,7 +141,7 @@ namespace anydim {
      */
     class AnyDim final: public Dim {
     public:
-	AnyDim();
+	explicit AnyDim(bool use_exif);
 	~AnyDim();
 
 	const char* mime() const override;

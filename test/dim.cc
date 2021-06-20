@@ -52,7 +52,7 @@ namespace {
 	const uint8_t* a = &img[0];
 	const uint8_t* const end = a + img.size();
 
-	anydim::AnyDim dim;
+	anydim::AnyDim dim {false};
 	while(a!=end && dim.undecided()) {
 	    dim.feed(a, a+1);
 	    ++a;
@@ -95,7 +95,7 @@ namespace garbage {
      */
     void test(TC)
     {
-	anydim::AnyDim dim;
+	anydim::AnyDim dim {false};
 	uint8_t a[1];
 	for(int i=0; i<10000; ++i) {
 	    a[0] = i;
@@ -107,7 +107,7 @@ namespace garbage {
 
     void empty(TC)
     {
-	anydim::AnyDim dim;
+	anydim::AnyDim dim {false};
 	dim.eof();
 	orchis::assert_(dim.bad());
     }

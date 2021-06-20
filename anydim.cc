@@ -6,6 +6,8 @@
  */
 #include "anydim.h"
 #include "jfif.h"
+#include "tiff/tiff.h"
+#include "orientation.h"
 
 #include <algorithm>
 
@@ -42,6 +44,11 @@ namespace {
 	    return false;
 	}
     }
+
+    bool is_app1(const jfif::Segment& seg)
+    {
+	return seg.marker == jfif::marker::APP1;
+    }
 }
 
 
@@ -52,8 +59,9 @@ const char* JpegDim::mime() const
     return "image/jpeg";
 }
 
-JpegDim::JpegDim()
-    : decoder {new jfif::Decoder}
+JpegDim::JpegDim(bool use_exif)
+    : decoder {new jfif::Decoder},
+      use_exif {use_exif}
 {}
 
 JpegDim::~JpegDim()
@@ -82,11 +90,26 @@ void JpegDim::feed(const uint8_t *a, const uint8_t *b)
 		height = eat16(a);
 		width = eat16(a);
 		state_ = GOOD;
+
+		if (!use_exif) return;
+
+		/* To avoid scanning the whole JFIF in case there's no
+		 * EXIF information, we assume that APP1 appears
+		 * before SOFn.
+		 */
+		auto app1 = std::find_if(begin(decoder->v), end(decoder->v), is_app1);
+		if(app1==end(decoder->v)) return;
+
+		const tiff::File tiff {app1->v};
+		Orientation{tiff}.adjust(width, height);
 	    }
 	}
     }
     catch (const jfif::Decoder::Error&) {
 	state_ = BAD;
+    }
+    catch (const tiff::Error&) {
+	// If TIFF/Exif is broken, we can just ignore it
     }
 }
 
@@ -160,10 +183,10 @@ void PngDim::eof()
 
 using anydim::AnyDim;
 
-AnyDim::AnyDim()
+AnyDim::AnyDim(bool use_exif)
     : mime_("image")
 {
-    dims_.push_back(new JpegDim);
+    dims_.push_back(new JpegDim {use_exif});
     dims_.push_back(new PngDim);
     dims_.push_back(new PnmDim);
 }

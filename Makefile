@@ -49,6 +49,7 @@ tests: test.o libanydim.a libtest.a
 libanydim.a: anydim.o
 libanydim.a: pnmdim.o
 libanydim.a: jfif.o
+libanydim.a: orientation.o
 libanydim.a: tiff/tiff.o
 libanydim.a: tiff/range.o
 	$(AR) $(ARFLAGS) $@ $^
