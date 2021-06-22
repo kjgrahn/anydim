@@ -108,7 +108,7 @@ int main(int argc, char ** argv)
 	    std::cout << usage << '\n';
 	    return 0;
 	case 'v':
-	    std::cout << "anydim 1.4\n"
+	    std::cout << "anydim 1.5\n"
 		      << "Copyright (c) 2011, 2019, 2021 Jörgen Grahn\n";
 	    return 0;
 	    break;
